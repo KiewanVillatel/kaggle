@@ -11,11 +11,12 @@ from sacred.observers import MongoObserver
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from keras import regularizers
+from tensorflow import set_random_seed
 
 ex = Experiment()
 
 
-ex.observers.append(MongoObserver.create(os.environ['mongodb_url'], db_name=os.environ['mongodb_db']))
+# ex.observers.append(MongoObserver.create(os.environ['mongodb_url'], db_name=os.environ['mongodb_db']))
 
 @ex.config
 def my_config():
@@ -43,9 +44,9 @@ PREDICTION = 'Prediction'
 
 
 @ex.capture
-def build_datasets(fare_modulo, age_modulo):
+def build_datasets(fare_modulo, age_modulo, seed):
   df_train = pd.read_csv('train.csv')
-  df_train = df_train.sample(frac=1)
+  df_train = df_train.sample(frac=1, random_state=seed)
   df_test = pd.read_csv('test.csv')
   df = pd.concat([df_train, df_test])
 
@@ -127,7 +128,9 @@ def fit_model(model, x, y, model_type, batch_size, epochs, validation_split):
 
 
 @ex.automain
-def my_main(nb_models):
+def my_main(nb_models, seed):
+  set_random_seed(seed)
+  np.random.seed(seed)
   one_hot_features, df_train, df_valid, df_test = build_datasets()
 
   df_test[LABEL] = 0
