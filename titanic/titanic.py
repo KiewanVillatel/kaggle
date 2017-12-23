@@ -10,6 +10,7 @@ from sacred import Experiment
 from sacred.observers import MongoObserver
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
+from keras import regularizers
 
 ex = Experiment()
 
@@ -21,6 +22,7 @@ def my_config():
   hidden_size = 128
   nb_models = 1
   dropout_rate = 0
+  kernel_regularizer_rate = 0.001
   batch_size = 32
   epochs = 1000
   learning_rate = 0.00001
@@ -83,13 +85,13 @@ def build_datasets(fare_modulo, age_modulo):
 
 
 @ex.capture
-def build_mlp_model(mlp_input_size, hidden_size, dropout_rate, learning_rate, decay):
+def build_mlp_model(mlp_input_size, hidden_size, dropout_rate, learning_rate, decay, kernel_regularizer_rate):
   model = Sequential()
-  model.add(Dense(units=hidden_size, activation='relu', input_dim=mlp_input_size))
+  model.add(Dense(units=hidden_size, activation='relu', input_dim=mlp_input_size, kernel_regularizer=regularizers.l2(kernel_regularizer_rate)))
   model.add(Dropout(dropout_rate, noise_shape=None, seed=None))
-  model.add(Dense(units=hidden_size, activation='relu', input_dim=hidden_size))
+  model.add(Dense(units=hidden_size, activation='relu', input_dim=hidden_size, kernel_regularizer=regularizers.l2(kernel_regularizer_rate)))
   model.add(Dropout(dropout_rate, noise_shape=None, seed=None))
-  model.add(Dense(units=2, activation='softmax'))
+  model.add(Dense(units=2, activation='softmax', kernel_regularizer=regularizers.l2(kernel_regularizer_rate)))
   model.compile(loss='binary_crossentropy',
                 optimizer=optimizers.Adam(lr=learning_rate, decay=decay),
                 metrics=['accuracy'])
