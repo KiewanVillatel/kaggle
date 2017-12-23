@@ -27,6 +27,8 @@ def my_config():
   fare_modulo = 5
   age_modulo = 5
 
+ex.add_config('config.json')
+
 LABEL = 'Survived'
 ID = 'PassengerId'
 PREDICTION = 'Prediction'
