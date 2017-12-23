@@ -104,7 +104,7 @@ def my_main(nb_models, batch_size, epochs, validation_split):
     df_valid[PREDICTION] += model.predict(df_valid[one_hot_features])[:, 1]
 
   df_test[LABEL] /= nb_models
-  df_test[LABEL] = np.rint(df_test[LABEL])
+  df_test[LABEL] = np.rint(df_test[LABEL]).astype(int)
 
   df_valid[PREDICTION] /= nb_models
   df_valid[PREDICTION] = np.rint(df_valid[PREDICTION])
