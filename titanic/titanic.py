@@ -9,8 +9,11 @@ from keras.models import Sequential
 from sacred import Experiment
 from sacred.observers import MongoObserver
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 
 ex = Experiment()
+
+
 ex.observers.append(MongoObserver.create(os.environ['mongodb_url'], db_name=os.environ['mongodb_db']))
 
 @ex.config
@@ -27,11 +30,15 @@ def my_config():
   fare_modulo = 5
   age_modulo = 5
 
-ex.add_config('config_mlp.json')
+  model_type='mlp'
+
+
+ex.add_config('config.json')
 
 LABEL = 'Survived'
 ID = 'PassengerId'
 PREDICTION = 'Prediction'
+
 
 @ex.capture
 def build_datasets(fare_modulo, age_modulo):
@@ -73,9 +80,9 @@ def build_datasets(fare_modulo, age_modulo):
 
 
 @ex.capture
-def build_model(hidden_size, input_size, dropout_rate, learning_rate, decay):
+def build_mlp_model(mlp_input_size, hidden_size, dropout_rate, learning_rate, decay):
   model = Sequential()
-  model.add(Dense(units=hidden_size, activation='relu', input_dim=input_size))
+  model.add(Dense(units=hidden_size, activation='relu', input_dim=mlp_input_size))
   model.add(Dropout(dropout_rate, noise_shape=None, seed=None))
   model.add(Dense(units=hidden_size, activation='relu', input_dim=hidden_size))
   model.add(Dropout(dropout_rate, noise_shape=None, seed=None))
@@ -85,23 +92,45 @@ def build_model(hidden_size, input_size, dropout_rate, learning_rate, decay):
                 metrics=['accuracy'])
   return model
 
-@ex.automain
-def my_main(nb_models, batch_size, epochs, validation_split):
 
+@ex.capture
+def build_random_forest_model():
+  model = RandomForestClassifier()
+  return model
+
+
+@ex.capture
+def build_model(mlp_input_size, model_type):
+  if model_type == 'mlp':
+    return build_mlp_model(mlp_input_size=mlp_input_size)
+  else:
+    return build_random_forest_model()
+
+
+@ex.capture
+def fit_model(model, x, y, model_type, batch_size, epochs, validation_split):
+  if model_type == 'mlp':
+    model.fit(x,
+              y,
+              epochs=epochs,
+              batch_size=batch_size,
+              validation_split=validation_split,
+              callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto')],
+              verbose=0)
+  else:
+    model.fit(x, y)
+
+
+@ex.automain
+def my_main(nb_models):
   one_hot_features, df_train, df_valid, df_test = build_datasets()
 
   df_test[LABEL] = 0
   df_valid[PREDICTION] = 0
 
   for i in range(nb_models):
-    model = build_model(input_size=len(one_hot_features))
-    model.fit(df_train[one_hot_features],
-              pd.get_dummies(df_train[LABEL]),
-              epochs=epochs,
-              batch_size=batch_size,
-              validation_split=validation_split,
-              callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto')],
-              verbose=0)
+    model = build_model(mlp_input_size=len(one_hot_features))
+    fit_model(model, df_train[one_hot_features], pd.get_dummies(df_train[LABEL]))
     df_test[LABEL] += model.predict(df_test[one_hot_features])[:, 1]
     df_valid[PREDICTION] += model.predict(df_valid[one_hot_features])[:, 1]
 
