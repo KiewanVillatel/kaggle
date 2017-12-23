@@ -103,7 +103,7 @@ def build_random_forest_model():
 def build_model(mlp_input_size, model_type):
   if model_type == 'mlp':
     return build_mlp_model(mlp_input_size=mlp_input_size)
-  else:
+  elif model_type == 'rf':
     return build_random_forest_model()
 
 
@@ -117,7 +117,7 @@ def fit_model(model, x, y, model_type, batch_size, epochs, validation_split):
               validation_split=validation_split,
               callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto')],
               verbose=0)
-  else:
+  elif model_type == 'rf':
     model.fit(x, y)
 
 
