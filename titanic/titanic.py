@@ -48,15 +48,18 @@ def build_datasets(fare_modulo, age_modulo):
   df = pd.concat([df_train, df_test])
 
   FEATURES = ['Pclass', 'Sex', 'AgeModulo', 'SibSp', 'Parch', 'Embarked', 'FareModulo',
-              'IsBasy', 'IsYoungChildren', 'IsChildren', 'IsAdolescent', 'IsOld',
+              'IsBaby', 'IsYoungChildren', 'IsChildren', 'IsAdolescent', 'IsYoungAdult', 'IsAdult', 'IsOld', 'IsVeryOld',
               'IsInCabin']
 
   df['AgeModulo'] = df['Age'] % age_modulo
-  df['IsBasy'] = df['Age'] < 2
-  df['IsYoungChildren'] = df['Age'] < 7
-  df['IsChildren'] = df['Age'] < 12
-  df['IsAdolescent'] = df['Age'] < 18
-  df['IsOld'] = df['Age'] > 60
+  df['IsBaby'] = df['Age'].apply(lambda x: x < 2)
+  df['IsYoungChildren'] = df['Age'].apply(lambda x: 2 <= x < 7)
+  df['IsChildren'] = df['Age'].apply(lambda x: 7 <= x < 13)
+  df['IsAdolescent'] = df['Age'].apply(lambda x: 13 <= x < 18)
+  df['IsYoungAdult'] = df['Age'].apply(lambda x: 18 <= x < 30)
+  df['IsAdult'] = df['Age'].apply(lambda x: 30 <= x < 50)
+  df['IsOld'] = df['Age'].apply(lambda x: 50 <= x < 70)
+  df['IsVeryOld'] = df['Age'].apply(lambda x: x >= 70)
   df['FareModulo'] = df['Fare'] % fare_modulo
   df['IsInCabin'] = pd.isnull(df['Cabin']).apply(lambda x: not x)
 
