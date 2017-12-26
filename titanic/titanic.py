@@ -16,7 +16,7 @@ from tensorflow import set_random_seed
 ex = Experiment()
 
 
-# ex.observers.append(MongoObserver.create(os.environ['mongodb_url'], db_name=os.environ['mongodb_db']))
+ex.observers.append(MongoObserver.create(os.environ['mongodb_url'], db_name=os.environ['mongodb_db']))
 
 @ex.config
 def my_config():
@@ -36,7 +36,7 @@ def my_config():
   model_type='mlp'
 
 
-ex.add_config('config.json')
+ex.add_config('config.yaml')
 
 LABEL = 'Survived'
 ID = 'PassengerId'
@@ -128,7 +128,7 @@ def fit_model(model, x, y, model_type, batch_size, epochs, validation_split):
 
 
 @ex.automain
-def my_main(nb_models, seed):
+def my_main(_run, nb_models, seed):
   set_random_seed(seed)
   np.random.seed(seed)
   one_hot_features, df_train, df_valid, df_test = build_datasets()
