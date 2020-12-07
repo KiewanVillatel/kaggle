@@ -1,0 +1,10 @@
+name: Wine Reviews
+
+conda_env: conda_env.yml
+
+entry_points:
+  wine_reviews:
+    parameters:
+      normalize: {type: bool, default: True}
+      seed: {type: int, default: 0}
+    command: "python -m wine_reviews.main --normalize={normalize} --seed={seed}"

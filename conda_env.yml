@@ -1,0 +1,9 @@
+name: wine_reviews
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pandas
+  - mlflow
+  - pip:
+      - sklearn
