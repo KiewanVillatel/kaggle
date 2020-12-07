@@ -14,7 +14,7 @@ class Preprocessor(ABC):
         df, features, target = self._apply(dataset)
 
         dataset.features = features
-        dataset.target = target
+        dataset.labels = target
         dataset.dataframe = df
 
         return dataset

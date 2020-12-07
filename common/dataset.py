@@ -8,7 +8,7 @@ class Dataset(ABC):
     def __init__(self, dataframe: DataFrame = None):
         self._dataframe = dataframe
         self._features = []
-        self._target = []
+        self._labels = []
 
     @abstractmethod
     def _load_dataset(self) -> DataFrame:
@@ -26,12 +26,12 @@ class Dataset(ABC):
         self._features = value
 
     @property
-    def target(self):
-        return self._features
+    def labels(self):
+        return self._labels
 
-    @target.setter
-    def target(self, value):
-        self._target = value
+    @labels.setter
+    def labels(self, value):
+        self._labels = value
 
     @property
     def dataframe(self):
@@ -42,6 +42,6 @@ class Dataset(ABC):
         self._dataframe = value
 
     def get_training_test_sets(self):
-        return train_test_split(self._dataframe[self._features], self._dataframe[self._target])
+        return train_test_split(self._dataframe[self._features], self._dataframe[self._labels])
 
 

@@ -7,4 +7,18 @@ entry_points:
     parameters:
       normalize: {type: bool, default: True}
       seed: {type: int, default: 0}
-    command: "python -m wine_reviews.main --normalize={normalize} --seed={seed}"
+      min_province: {type: int, default: 0}
+      min_designation: {type: int, default: 0}
+      min_variety: {type: int, default: 0}
+      min_region_1: {type: int, default: 0}
+      min_region_2: {type: int, default: 0}
+      min_winery: {type: int, default: 0}
+    command: "python -m wine_reviews.main
+    --normalize={normalize}
+    --seed={seed}
+    --min_province={min_province}
+    --min_designation={min_designation}
+    --min_variety={min_variety}
+    --min_region_1={min_region_1}
+    --min_region_2={min_region_2}
+    --min_winery={min_winery}"
