@@ -9,17 +9,20 @@ from common.utils import preprocessing_helper
 
 class WineReviewsPreprocessor(Preprocessor):
 
-    def __init__(self, min_province, min_designation, min_variety, min_region_1, min_region_2, min_winery):
+    def __init__(self, min_province, min_designation, min_variety, min_region_1, min_region_2, min_winery, min_df, max_df):
         self._min_province = min_province
         self._min_designation = min_designation
         self._min_variety = min_variety
         self._min_region_1 = min_region_1
         self._min_region_2 = min_region_2
         self._min_winery = min_winery
+        self._min_df = min_df
+        self._max_df = max_df
 
     def _apply(self, dataset: Dataset) -> Tuple[DataFrame, List[str], List[str]]:
         df = dataset.dataframe
 
+        df, description_columns = preprocessing_helper.tf_idf(df, 'description', min_df=self._min_df, max_df=self._max_df)
         df, province_columns = preprocessing_helper.one_hot(df, 'province', min_count=self._min_province)
         df, designation_columns = preprocessing_helper.one_hot(df, 'designation', min_count=self._min_designation)
         df, variety_columns = preprocessing_helper.one_hot(df, 'variety', min_count=self._min_variety)
@@ -29,6 +32,6 @@ class WineReviewsPreprocessor(Preprocessor):
         df = preprocessing_helper.normalize_column_names(df)
         df['price'] = df['price'].fillna(0)
 
-        features = province_columns + designation_columns + variety_columns + region_1_columns + region_2_columns + winery_columns + ['price']
+        features = province_columns + designation_columns + variety_columns + region_1_columns + region_2_columns + winery_columns + description_columns + ['price']
 
         return df, features, ['points']

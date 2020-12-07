@@ -15,7 +15,9 @@ from wine_reviews.linear_model import LinearModel
 @click.option("--min_region_1", type=int)
 @click.option("--min_region_2", type=int)
 @click.option("--min_winery", type=int)
-def main(seed, normalize, min_province, min_designation, min_variety, min_region_1, min_region_2, min_winery):
+@click.option("--min_df", type=float)
+@click.option("--max_df", type=float)
+def main(seed, normalize, min_province, min_designation, min_variety, min_region_1, min_region_2, min_winery, min_df, max_df):
     dataset = WineReviewsDataset()
 
     preprocessor = WineReviewsPreprocessor(min_province=min_province,
@@ -23,7 +25,9 @@ def main(seed, normalize, min_province, min_designation, min_variety, min_region
                                            min_variety=min_variety,
                                            min_region_1=min_region_1,
                                            min_region_2=min_region_2,
-                                           min_winery=min_winery)
+                                           min_winery=min_winery,
+                                           min_df=min_df,
+                                           max_df=max_df)
 
     pipeline = Pipeline(dataset=dataset, preprocessor=preprocessor, model=LinearModel(normalize), seed=seed)
 

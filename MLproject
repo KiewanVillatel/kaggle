@@ -13,6 +13,8 @@ entry_points:
       min_region_1: {type: int, default: 0}
       min_region_2: {type: int, default: 0}
       min_winery: {type: int, default: 0}
+      min_df: {type: float, default: 0}
+      max_df: {type: float, default: 1.0}
     command: "python -m wine_reviews.main
     --normalize={normalize}
     --seed={seed}
@@ -21,4 +23,6 @@ entry_points:
     --min_variety={min_variety}
     --min_region_1={min_region_1}
     --min_region_2={min_region_2}
-    --min_winery={min_winery}"
+    --min_winery={min_winery}
+    --min_df={min_df}
+    --max_df={max_df}"
